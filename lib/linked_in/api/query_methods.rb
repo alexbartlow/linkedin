@@ -18,6 +18,11 @@ module LinkedIn
         simple_query(path, options)
       end
 
+      def company(options = {})
+        path   = company_path(options)
+        simple_query(path, options)
+      end
+
       private
 
         def simple_query(path, options={})
@@ -28,8 +33,8 @@ module LinkedIn
           elsif fields
             path +=":(#{fields.map{ |f| f.to_s.gsub("_","-") }.join(',')})"
           end
-
-          Mash.from_json(get(path))
+          headers = options[:headers] || {}
+          Mash.from_json(get(path, headers))
         end
 
         def person_path(options)
@@ -38,6 +43,21 @@ module LinkedIn
             path += "id=#{options[:id]}"
           elsif options[:url]
             path += "url=#{CGI.escape(options[:url])}"
+          else
+            path += "~"
+          end
+        end
+
+        def company_path(options)
+          path = "/companies/"
+          if options[:id]
+            path += "id=#{options[:id]}"
+          elsif options[:url]
+            path += "url=#{CGI.escape(options[:url])}"
+          elsif options[:name]
+            path += "universal-name=#{CGI.escape(options[:name])}"
+          elsif options[:domain]
+            path += "email-domain=#{CGI.escape(options[:domain])}"
           else
             path += "~"
           end
