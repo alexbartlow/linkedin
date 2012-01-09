@@ -56,5 +56,6 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<webmock>,     ["~> 1.6.0"])
     s.add_dependency(%q<vcr>,         ["~> 1.6.0"])
   end
+  s.add_dependency('builder')
 end
 

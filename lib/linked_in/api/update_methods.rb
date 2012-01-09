@@ -1,3 +1,4 @@
+require 'builder'
 module LinkedIn
   module Api
 
@@ -24,23 +25,28 @@ module LinkedIn
       #   post(path, network_update_to_xml(message))
       # end
       #
-      # def send_message(subject, body, recipient_paths)
-      #   path = "/people/~/mailbox"
       #
-      #   message         = LinkedIn::Message.new
-      #   message.subject = subject
-      #   message.body    = body
-      #   recipients      = LinkedIn::Recipients.new
-      #
-      #   recipients.recipients = recipient_paths.map do |profile_path|
-      #     recipient             = LinkedIn::Recipient.new
-      #     recipient.person      = LinkedIn::Person.new
-      #     recipient.person.path = "/people/#{profile_path}"
-      #     recipient
-      #   end
-      #   message.recipients = recipients
-      #   post(path, message_to_xml(message)).code
-      # end
+      def send_message(subject, body, *recipient_ids)
+        path = "/people/~/mailbox"
+
+        xml = Builder::XmlMarkup.new
+        xml.send('mailbox-item') do
+          xml.recipients do
+            recipient_ids.each do |rec_id|
+              xml.recipient do
+                xml.person('path' => "/people/#{rec_id}")
+              end
+            end
+          end
+          xml.subject do
+            xml.text! subject
+          end
+          xml.body do
+            xml.text! body
+          end
+        end
+        post(path, xml.target!).code
+      end
       #
       # def clear_status
       #   path = "/people/~/current-status"
