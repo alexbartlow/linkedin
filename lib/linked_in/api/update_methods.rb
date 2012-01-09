@@ -11,23 +11,16 @@ module LinkedIn
       def send_message(subject, body, *recipient_ids)
         path = "/people/~/mailbox"
 
-        xml = Builder::XmlMarkup.new
-        xml.send('mailbox-item') do
-          xml.recipients do
-            recipient_ids.each do |rec_id|
-              xml.recipient do
-                xml.person('path' => "/people/#{rec_id}")
-              end
-            end
-          end
-          xml.subject do
-            xml.text! subject
-          end
-          xml.body do
-            xml.text! body
-          end
-        end
-        post(path, xml.target!, 'Content-Type' => "application/xml").code
+        hsh = {
+          'recipients' => {
+            'values' => recipient_ids.map {|rec_id|
+              {'person' => {'_path' => "/people/#{rec_id}"}}
+            }
+          },
+          "subject" => subject,
+          "body"    => body
+        }
+        post(path, hsh.to_json, "Content-Type" => "application/json").code
       end
     end
   end
